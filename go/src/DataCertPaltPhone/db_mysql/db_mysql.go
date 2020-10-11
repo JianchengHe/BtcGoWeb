@@ -1,7 +1,10 @@
 package db_mysql
 
 import (
+	"DataCertPaltPhone/models"
+	"crypto/md5"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 	"github.com/astaxie/beego"
 	_ "github.com/go-sql-driver/mysql"
@@ -35,4 +38,25 @@ func Connect() {
 	}
 	Db = db
 	fmt.Println(db)
+}
+
+//将用户信息保存到函数当中
+func AddUser(u models.User)  (int64,error){
+	//1、将密码进行哈希计算
+	md5Hash := md5.New()
+	md5Hash.Write([]byte(u.Password))
+	passwordBytes :=md5Hash.Sum(nil)
+	u.Password = hex.EncodeToString(passwordBytes)
+
+	//excute
+	result,err :=Db.Exec("insert into user(phone,password)"+"values(?,?)",
+		u.Phone,u.Password)
+	if err != nil {
+		return -1,err
+	}
+	row,err := result.RowsAffected()
+	if err != nil {
+		return -1,err
+	}
+	return row,nil
 }
