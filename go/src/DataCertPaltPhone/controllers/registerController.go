@@ -12,6 +12,10 @@ import (
 type ResgiterController struct {
 	beego.Controller
 }
+
+func (r *ResgiterController) Get() {
+	r.TplName = "login.html"
+}
 //该方法用于用户注册的逻辑
 func (r *ResgiterController) Post() {
 	//解析用户端提交的数据
@@ -23,22 +27,19 @@ func (r *ResgiterController) Post() {
 	}
 	//将解析到的数据保存到数据库里
 	row,err := db_mysql2.AddUser(user)
-	if err != nil{
-		r.Ctx.WriteString("用户信息注册失败")
-		return
-	}
-
-	fmt.Println(row)
-	md5Hash := md5.New()
-	md5Hash.Write([]byte(user.Password))
-	user.Password = hex.EncodeToString(md5Hash.Sum(nil))
-	r.Ctx.WriteString("恭喜用户信息注册成功")
-	r.TplName = "login.html"
 	/*
 	将处理结果返回到客户端浏览器，
 	如果成功跳转登入页面，nn
 	如果失败跳转错误页面
 	 */
-
-
+	if err != nil{
+		r.Ctx.WriteString("用户信息注册失败")
+		r.TplName = "err.html"
+		return
+	}
+	fmt.Println(row)
+	md5Hash := md5.New()
+	md5Hash.Write([]byte(user.Password))
+	user.Password = hex.EncodeToString(md5Hash.Sum(nil))
+	r.TplName = "login.html"
 }
