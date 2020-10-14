@@ -36,5 +36,5 @@ func (l *LoginController) Post() {
 	}
 	//4、根据查询结果返回客户端相应的信息或页面跳转
 	l.Data["phone"] = u.Phone
-	l.TplName = "home.html"
+	l.TplName = "home.html"//上传文件界面
 }
