@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"DataCertPaltPhone/models"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"time"
 )
 
 /*
@@ -21,6 +23,7 @@ type HomeController struct {
 该post方法用于处理用户在客户端提交的文件
 */
 func (h *HomeController) Post() {
+	phone := h.Ctx.Request.PostFormValue("phone")
 	title := h.Ctx.Request.PostFormValue("home_title") //用户输入标题
 	fmt.Println(title)
 	file, header, err := h.GetFile("hejiancheng") //封装好，到下面使用
@@ -49,9 +52,41 @@ func (h *HomeController) Post() {
 	hash256.Write(fileBytes)
 	hashBytes := hash256.Sum(nil)
 	fmt.Println(hex.EncodeToString(hashBytes))
-	h.Ctx.WriteString("恭喜，已接收到上传文件")
-	//先查询用户信息
+	//先查询用户id
+	user,err:= models.User{Phone:phone}.QueryUserByPhone()
+	if err != nil{
+		fmt.Println("查询用户",err.Error())
+		h.Ctx.WriteString("抱歉，电子数据认证失败，请稍后再试")
+		return
+	}
 	//把上传的文件作为记录保存到数据库当中
+	//①计算文件的md5值
+	md5Hash := sha256.New()
+	fileMdBytes,err := ioutil.ReadAll(file)
+	md5Hash.Write(fileMdBytes)
+	bytes := md5Hash.Sum(nil)
+	record := models.HomeRecord{
+		UserId:    user.Id,
+		FileName:  header.Filename,
+		FileSize:  header.Size,
+		FileCert:  hex.EncodeToString(bytes),
+		FileTitle: title,
+		CertTime:  time.Now().UnixNano(),
+	}
+	//②保存认证数据到数据库中
+	_,err = record.SavaRecord()
+	if err!= nil {
+		h.Ctx.WriteString("抱歉，文件认证保存失败，请稍后再试")
+		return
+	}
+	//上传文件保存到数据库成功
+	records,err := models.QueryRecordsByUserId(user.Id)
+	if err != nil {
+		h.Ctx.WriteString("抱歉，获取电子数据列表失败，请重新尝试")
+		return
+	}
+	h.Data["Records"] = records
+	h.TplName = "list_record.html"
 }
 
 /*
