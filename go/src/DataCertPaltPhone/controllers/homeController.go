@@ -2,13 +2,9 @@ package controllers
 
 import (
 	"DataCertPaltPhone/models"
-	"crypto/sha256"
-	"encoding/hex"
+	"DataCertPaltPhone/utils"
 	"fmt"
 	"github.com/astaxie/beego"
-	"io"
-	"io/ioutil"
-	"os"
 	"time"
 )
 
@@ -23,64 +19,56 @@ type HomeController struct {
 该post方法用于处理用户在客户端提交的文件
 */
 func (h *HomeController) Post() {
-	phone := h.Ctx.Request.PostFormValue("phone")
+	//解析客户端提交的数据和文件
+	phone := h.Ctx.Request.PostFormValue("phone")      //获取用户phone的信息
 	title := h.Ctx.Request.PostFormValue("home_title") //用户输入标题
 	fmt.Println(title)
 	file, header, err := h.GetFile("hejiancheng") //封装好，到下面使用
 	if err != nil {                               //解析客户端提交的文件出现的错误
 		h.Ctx.WriteString("抱歉，文件解析失败，请重试")
-		fmt.Println(err.Error())
 		return
 	}
 	defer file.Close() //延迟执行   空指针错误：invalid memorey or nil pointer dereferenece
-	//使用io提供的方法保存文件
+	//调用工具函数保存文件到本地
 	saveFilePath := "static/home/" + header.Filename
-	savaFile, err := os.OpenFile(saveFilePath, os.O_CREATE|os.O_RDWR, 777)
+	_, err = utils.SavaFile(saveFilePath, file)
 	if err != nil {
-		h.Ctx.WriteString("抱歉，电子数据认证失败，请重试")
-		return
-	}
-
-	_, err = io.Copy(savaFile, file)
-	if err != nil {
-		h.Ctx.WriteString("抱歉，电子数据认证失败，请重新尝试")
+		h.Ctx.WriteString("抱歉，文件认证失败，请重试")
 		return
 	}
 	//2、计算文件的SHA256值
-	hash256 := sha256.New()
-	fileBytes, _ := ioutil.ReadAll(file)
-	hash256.Write(fileBytes)
-	hashBytes := hash256.Sum(nil)
-	fmt.Println(hex.EncodeToString(hashBytes))
+	fileHash, err := utils.Sha256Reader(file)
+	fmt.Println(fileHash)
 	//先查询用户id
-	user,err:= models.User{Phone:phone}.QueryUserByPhone()
-	if err != nil{
-		fmt.Println("查询用户",err.Error())
+	user, err := models.User{Phone: phone}.QueryUserByPhone()
+	if err != nil {
+		fmt.Println("查询用户", err.Error())
 		h.Ctx.WriteString("抱歉，电子数据认证失败，请稍后再试")
 		return
 	}
 	//把上传的文件作为记录保存到数据库当中
 	//①计算文件的md5值
-	md5Hash := sha256.New()
-	fileMdBytes,err := ioutil.ReadAll(file)
-	md5Hash.Write(fileMdBytes)
-	bytes := md5Hash.Sum(nil)
+	Md5String, err := utils.Md5HashReader(file)
+	if err != nil {
+		h.Ctx.WriteString("抱歉。数据认证失败，请重试")
+	}
 	record := models.HomeRecord{
 		UserId:    user.Id,
 		FileName:  header.Filename,
 		FileSize:  header.Size,
-		FileCert:  hex.EncodeToString(bytes),
+		FileCert:  Md5String,
 		FileTitle: title,
-		CertTime:  time.Now().UnixNano(),
+		CertTime:  time.Now().Unix(),
 	}
 	//②保存认证数据到数据库中
-	_,err = record.SavaRecord()
-	if err!= nil {
+	_, err = record.SavaRecord()
+	if err != nil {
+		fmt.Println(err.Error())
 		h.Ctx.WriteString("抱歉，文件认证保存失败，请稍后再试")
 		return
 	}
 	//上传文件保存到数据库成功
-	records,err := models.QueryRecordsByUserId(user.Id)
+	records, err := models.QueryRecordsByUserId(user.Id)
 	if err != nil {
 		h.Ctx.WriteString("抱歉，获取电子数据列表失败，请重新尝试")
 		return
