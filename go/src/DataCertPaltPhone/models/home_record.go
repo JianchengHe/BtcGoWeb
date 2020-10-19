@@ -2,6 +2,8 @@ package models
 
 import (
 	"DataCertPaltPhone/db_mysql"
+	"DataCertPaltPhone/utils"
+	//"time"
 )
 
 type HomeRecord struct {
@@ -12,6 +14,7 @@ type HomeRecord struct {
 	FileCert  string
 	FileTitle string
 	CertTime  int64
+	CertTimeFormat string
 }
 
 //把上传的文件作为记录保存到数据库当中
@@ -44,6 +47,9 @@ func QueryRecordsByUserId(userId int) ([]HomeRecord,error) {
 		if err != nil {
 			return nil,err
 		}
+		//整形-->字符串
+		tStr := utils.TimeFormat(record.CertTime,utils.TIME_FORMAT_THREE)
+		record.CertTimeFormat = tStr
 		records = append(records,record)
 	}
 	return records,nil

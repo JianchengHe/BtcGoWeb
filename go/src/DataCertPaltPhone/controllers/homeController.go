@@ -5,6 +5,7 @@ import (
 	"DataCertPaltPhone/utils"
 	"fmt"
 	"github.com/astaxie/beego"
+	"os"
 	"time"
 )
 
@@ -48,7 +49,8 @@ func (h *HomeController) Post() {
 	}
 	//把上传的文件作为记录保存到数据库当中
 	//①计算文件的md5值
-	Md5String, err := utils.Md5HashReader(file)
+	saveFile,err:= os.Open(saveFilePath)
+	Md5String, err := utils.Md5HashReader(saveFile)
 	if err != nil {
 		h.Ctx.WriteString("抱歉。数据认证失败，请重试")
 	}
