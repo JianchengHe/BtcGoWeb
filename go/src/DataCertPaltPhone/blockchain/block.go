@@ -1,6 +1,10 @@
 package blockchain
 
-import "time"
+import (
+	"DataCertPaltPhone/utils"
+	"bytes"
+	"time"
+)
 
 /*
 定义区块结构体，用于表示区块
@@ -25,13 +29,26 @@ func NewBlock(height int64, perviousHash []byte, data []byte) Block {
 		Data:         data,
 		Version:      "0X01",
 	}
-	//block.Hash =
+	//1、将block结构体数据转换为[]byte类型
+	heightBytes, _ := utils.Int64ToByte(block.Height)
+	timeStampBytes, _ := utils.Int64ToByte(block.TimeStamp)
+	versionBytes := utils.StringToByte(block.Version)
+	var blockBytes []byte
+	bytes.Join([][]byte{
+		heightBytes,
+		timeStampBytes,
+		block.Data,
+		versionBytes,
+	}, []byte{})
+	//bytes.Join拼接
+	block.Hash = utils.Sha256HashBlock(blockBytes)
 	return block
 }
+
 /*
 创建创世区块
- */
-func CreateGenesisBlock()  Block{
-	genesisBlock := NewBlock(0,[]byte{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},[]byte{0})
+*/
+func CreateGenesisBlock() Block {
+	genesisBlock := NewBlock(0, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, []byte{0})
 	return genesisBlock
 }

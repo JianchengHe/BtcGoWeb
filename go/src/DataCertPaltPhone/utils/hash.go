@@ -40,3 +40,13 @@ func Md5HashReader(reader io.Reader)(string,error)  {
 	hashBytes := Md5Hash.Sum(nil)
 	return hex.EncodeToString(hashBytes),nil
 }
+/*
+对区块数据进行Sha256哈希计算
+ */
+func Sha256HashBlock(bs []byte) []byte {
+	//2、将转换后[]byte通过writer输出
+	Sha256Hash := sha256.New()
+	Sha256Hash.Write(bs)
+	hash := Sha256Hash.Sum(nil)
+	return hash
+}
