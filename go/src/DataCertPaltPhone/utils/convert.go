@@ -15,7 +15,7 @@ func Int64ToByte(num int64) ([]byte,error) {
 	//buff.Bytes()//通过bytes方法从缓冲区中获取数据
 	/*
 	大端位序排列 binary.BigEndian
-	小端位序排列binary.LittleEndian
+	小端位序排列 binary.LittleEndian
 	 */
 	err := binary.Write(buff,binary.BigEndian,num)
 	if err != nil {
