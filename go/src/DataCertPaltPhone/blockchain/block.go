@@ -19,7 +19,6 @@ type Block struct {
 	Nonce        int64  //区块对应的Nonce值
 }
 
-
 /*
 创建一个新区块
 */
@@ -34,7 +33,7 @@ func NewBlock(height int64, perviousHash []byte, data []byte) Block {
 	//找nonce值，通过pow算法寻找
 	//挖矿竞争，获得记账权
 	pow := NewPow(block)
-	hash,nonce := pow.Run()
+	hash, nonce := pow.Run()
 	block.Nonce = nonce
 	block.Hash = hash
 	//1、将block结构体数据转换为[]byte类型
@@ -64,23 +63,24 @@ func CreateGenesisBlock() Block {
 	genesisBlock := NewBlock(0, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, []byte{0})
 	return genesisBlock
 }
+
 /*
 对区块进行序列化
- */
-func (b Block) Serialize() ([]byte){
-	buff := new(bytes.Buffer)//缓冲区
+*/
+func (b Block) Serialize() []byte {
+	buff := new(bytes.Buffer) //缓冲区
 	encoder := gob.NewEncoder(buff)
-	encoder.Encode(b)//将区块b放入到序列化编码器中
+	encoder.Encode(b) //将区块b放入到序列化编码器中
 	return buff.Bytes()
 }
 
 //区块的反序列化操作
-func DeSerialize(data []byte) (*Block,error){
+func DeSerialize(data []byte) (*Block, error) {
 	var block Block
 	decoder := gob.NewDecoder(bytes.NewReader(data))
 	err := decoder.Decode(&block)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
-	return &block,nil
+	return &block, nil
 }
