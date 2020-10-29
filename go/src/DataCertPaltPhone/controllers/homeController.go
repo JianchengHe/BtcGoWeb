@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"DataCertPaltPhone/blockchain"
 	"DataCertPaltPhone/models"
 	"DataCertPaltPhone/utils"
 	"fmt"
@@ -20,7 +21,7 @@ type HomeController struct {
 该post方法用于处理用户在客户端提交的文件
 */
 func (h *HomeController) Post() {
-	//解析客户端提交的数据和文件
+	//1、解析客户端提交的数据和文件
 	phone := h.Ctx.Request.PostFormValue("phone")      //获取用户phone的信息
 	title := h.Ctx.Request.PostFormValue("home_title") //用户输入标题
 	fmt.Println(title)
@@ -30,14 +31,14 @@ func (h *HomeController) Post() {
 		return
 	}
 	defer file.Close() //延迟执行   空指针错误：invalid memorey or nil pointer dereferenece
-	//调用工具函数保存文件到本地
+	//2、调用工具函数保存文件到本地
 	saveFilePath := "static/home/" + header.Filename
 	_, err = utils.SavaFile(saveFilePath, file)
 	if err != nil {
 		h.Ctx.WriteString("抱歉，文件认证失败，请重试")
 		return
 	}
-	//2、计算文件的SHA256值
+	//3、计算文件的SHA256值
 	fileHash, err := utils.Sha256Reader(file)
 	fmt.Println(fileHash)
 	//先查询用户id
@@ -69,6 +70,8 @@ func (h *HomeController) Post() {
 		h.Ctx.WriteString("抱歉，文件认证保存失败，请稍后再试")
 		return
 	}
+	//③经用户上传的文件的md5值和sha256值保存到区块链上，即数据上链
+	blockchain.CHAIN.SaveData([]byte(fileHash))
 	//上传文件保存到数据库成功
 	records, err := models.QueryRecordsByUserId(user.Id)
 	if err != nil {

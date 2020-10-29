@@ -10,10 +10,17 @@ import (
 
 func main() {
 	//1、创世区块
-	bc := blockchain.NewBlockChain()//封装
-	fmt.Printf("创世区块的哈希值:%x\n",bc.LastHash)
-	//bc.SaveData([]byte("用户的数据"))
-
+	bc := blockchain.NewBlockChain() //封装
+	bc.SaveData([]byte("我们是区块链学院2019级"))
+	blocks,err := bc.QueryAllBlocks()
+	if err!= nil {
+		fmt.Println(err.Error())
+		return
+	}
+	//blocks是一个切片
+	for _,block := range blocks{
+		fmt.Printf("区块高度：%d,区块的数据%s\n",block.Height,block.Data)
+	}
 	//block0 := blockchain.CreateGenesisBlock() //创建创世区块
 	////block1 := blockchain.NewBlock(block0.Height+1,block0.Hash,[]byte("a"))
 	////fmt.Println(block1)
@@ -41,6 +48,8 @@ func main() {
 	//blockXml,_ := xml.Marshal(block0)
 	//fmt.Println("通过xml序列化的block：",string(blockXml))
 	return
+	//先准备一条区块链
+	blockchain.NewBlockChain()
 	//连接数据库
 	db_mysql.Connect()
 	//静态资源文件路径映设设置

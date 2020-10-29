@@ -24,7 +24,7 @@ type Block struct {
 */
 func NewBlock(height int64, perviousHash []byte, data []byte) Block {
 	block := Block{
-		Height:       height + 1,
+		Height:       height ,
 		TimeStamp:    time.Now().Unix(),
 		PerviousHash: perviousHash,
 		Data:         data,
