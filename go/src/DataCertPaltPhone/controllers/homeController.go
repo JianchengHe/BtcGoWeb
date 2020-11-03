@@ -42,7 +42,7 @@ func (h *HomeController) Post() {
 	fileHash, err := utils.Sha256Reader(file)
 	fmt.Println(fileHash)
 	//先查询用户id
-	user, err := models.User{Phone: phone}.QueryUserByPhone()
+	user1, err := models.User{Phone: phone}.QueryUserByPhone()
 	if err != nil {
 		fmt.Println("查询用户", err.Error())
 		h.Ctx.WriteString("抱歉，电子数据认证失败，请稍后再试")
@@ -50,13 +50,13 @@ func (h *HomeController) Post() {
 	}
 	//把上传的文件作为记录保存到数据库当中
 	//①计算文件的md5值
-	saveFile,err:= os.Open(saveFilePath)
+	saveFile, err := os.Open(saveFilePath)
 	Md5String, err := utils.Md5HashReader(saveFile)
 	if err != nil {
 		h.Ctx.WriteString("抱歉。数据认证失败，请重试")
 	}
 	record := models.HomeRecord{
-		UserId:    user.Id,
+		UserId:    user1.Id,
 		FileName:  header.Filename,
 		FileSize:  header.Size,
 		FileCert:  Md5String,
@@ -70,14 +70,38 @@ func (h *HomeController) Post() {
 		h.Ctx.WriteString("抱歉，文件认证保存失败，请稍后再试")
 		return
 	}
+	user := &models.User{
+		Phone:    phone,
+	}
+	user,_ = user.QueryUserByPhone()
+	fmt.Println("用户的信息",user.Name,user.Phone,user.Card)
 	//③经用户上传的文件的md5值和sha256值保存到区块链上，即数据上链
-	blockchain.CHAIN.SaveData([]byte(fileHash))
+	certRecord := models.CertRecord{
+		CertID:   []byte(Md5String),
+		CertHash: []byte(fileHash),
+		CertName: user.Name,
+		Phone:    user.Phone,
+		CertCard: user.Card,
+		FileName: header.Filename,
+		FileSize: header.Size,
+		CertTime: time.Now().Unix(),
+	}
+	//序列化
+	certBytes,_ := certRecord.Serialize()
+
+	block, err := blockchain.CHAIN.SaveData(certBytes)
+	if err != nil {
+		h.Ctx.WriteString("抱歉，数据上链错误:" + err.Error())
+		return
+	}
+	fmt.Printf("恭喜，已将数据保存到区块链当中，区块的高度是：%d\n",block.Height)
 	//上传文件保存到数据库成功
 	records, err := models.QueryRecordsByUserId(user.Id)
 	if err != nil {
 		h.Ctx.WriteString("抱歉，获取电子数据列表失败，请重新尝试")
 		return
 	}
+
 	h.Data["Records"] = records
 	h.TplName = "list_record.html"
 }

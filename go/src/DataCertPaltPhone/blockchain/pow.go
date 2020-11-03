@@ -3,7 +3,6 @@ package blockchain
 import (
 	"DataCertPaltPhone/utils"
 	"bytes"
-	"fmt"
 	"math/big"
 )
 
@@ -61,7 +60,7 @@ func (p ProofOfWork) Run() ([]byte, int64) {
 			break
 		}
 		nonce++ //自增，继续寻找
-		fmt.Println("尝试的nonce值：", nonce)
+		//fmt.Println("尝试的nonce值：", nonce)
 	}
 	return blockHash, nonce
 }
