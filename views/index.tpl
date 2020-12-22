@@ -93,3 +93,10 @@
   <script src="/static/js/reload.min.js"></script>
 </body>
 </html>
+<div class="sc-1c3roxu-0 kRLvqx s0dncj-4 fJgjCk" width="100%">
+    <input type="text"
+           placeholder="Search your transaction, an address or a block"
+           value=""
+           width="100%"
+           class="sc-1c3roxu-1 gxXJQb">
+</div>
