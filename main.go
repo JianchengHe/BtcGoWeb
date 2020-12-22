@@ -1,13 +1,13 @@
 package main
 
 import (
-	_ "BTCBeego/routers"
+	_"BtcGoWeb/routers"
 	"fmt"
 	"github.com/astaxie/beego"
 )
 
 func main() {
-	fmt.Println("hello this world")
+	fmt.Println("hello  world !")
 	beego.Run()
 
 }
