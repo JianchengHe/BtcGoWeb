@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"BtcGoWeb/controllers"
+	"BTCBeego/controllers"
 	"github.com/astaxie/beego"
 )
 
