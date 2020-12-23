@@ -6,6 +6,7 @@ type BTCResult struct {
 	Error  interface{} `json:"error"`
 	Id     string      `json:"id"`
 }
+
 //该结构体用于创建比特币客户端节点连接请求
 type BTCJson struct {
 	Jsonrpc string        `json:"jsonrpc"`
@@ -13,6 +14,7 @@ type BTCJson struct {
 	Method  string        `json:"method"`
 	Params  []interface{} `json:"params"`
 }
+
 //比特币节点返回的块信息
 type Blcok struct {
 	Hash          string   `json:"hash"`
@@ -33,4 +35,23 @@ type Blcok struct {
 	Chainwork     string   `json:"chainwork"`
 	NTx           int64    `json:"n_tx"`
 	Nextblockhash string   `json:"nextblockhash"`
+}
+type AddressInfo struct {
+	Address             string   `json:"address"`
+	ScriptPubkey        string   `json:"scriptPubKey"`
+	Ismine              bool     `json:"ismine"`
+	solvable            bool     `json:"solvable"`
+	Desc                string   `json:"desc"`
+	Iswatchonly         bool     `json:"iswatchonly"`
+	Isscript            bool     `json:"isscript"`
+	Iswitness           bool     `json:"iswitness"`
+	Witness_version     int64    `json:"witness_version"`
+	Witness_program     string   `json:"witness_program"`
+	Pubkey              string   `json:"pubkey"`
+	Ischange            bool     `json:"ischange"`
+	Timestamp           int64    `json:"timestamp"`
+	Hdkeypath           string   `json:"hdkeypath"`
+	Hdseedid            string   `json:"hdseedid"`
+	Hdmasterfingerprint string   `json:"hdmasterfingerprint"`
+	Lables              []string `json:"lables"`
 }

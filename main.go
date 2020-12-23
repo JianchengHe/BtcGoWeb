@@ -9,7 +9,7 @@ import (
 
 func main() {
 	fmt.Println("hello  world !")
-	result, err := btc.GetMsgByCommand("getblockhash", 0)
+	result, err := btc.GetMsgByCommand("getaddressinfo", "bc1qvcfdyrckqp905fray675cfreqtysqlg2kaqm66")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
