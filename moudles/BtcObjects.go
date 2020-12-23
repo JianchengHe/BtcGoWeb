@@ -15,7 +15,7 @@ type BTCJson struct {
 	Params  []interface{} `json:"params"`
 }
 
-//比特币节点返回的块信息
+//getblock "hash值" 返回的结构体
 type Blcok struct {
 	Hash          string   `json:"hash"`
 	Confirmations int64    `json:"confirmations"`
@@ -36,6 +36,8 @@ type Blcok struct {
 	NTx           int64    `json:"n_tx"`
 	Nextblockhash string   `json:"nextblockhash"`
 }
+
+//getaddressinfo "地址" 结构体
 type AddressInfo struct {
 	Address             string   `json:"address"`
 	ScriptPubkey        string   `json:"scriptPubKey"`
@@ -54,4 +56,55 @@ type AddressInfo struct {
 	Hdseedid            string   `json:"hdseedid"`
 	Hdmasterfingerprint string   `json:"hdmasterfingerprint"`
 	Lables              []string `json:"lables"`
+}
+
+//getblockchaininfo 命令返回的结构体
+type BlockChainInfo struct {
+	Chain                string    `json:"chain"`
+	Blocks               int64     `json:"blocks"`
+	Headers              int64     `json:"headers"`
+	Bestblockhash        string    `json:"bestblockhash"`
+	Difficulty           int64     `json:"difficulty"`
+	Mediantime           int64     `json:"mediantime"`
+	Verificationprogress float64   `json:"verificationprogress"`
+	Initialblockdownload bool      `json:"initialblockdownload"`
+	Chainwork            string    `json:"chainwork"`
+	Size_on_disk         int64     `json:"size_on_disk"`
+	Pruned               bool      `json:"pruned"`
+	Softforks            softforks `json:"softforks"`
+	Warnings             string    `json:"warnings"`
+}
+
+//getblockchaininfo 命令返回的结构体的数据中的一个子集嵌套 softforks
+type softforks struct {
+	Bip34  softfork `json:"bip_34"`
+	Bip66  softfork `json:"bip_66"`
+	Bip65  softfork `json:"bip_65"`
+	Csv    softfork `json:"csv"`
+	Segwit softfork `json:"segwit"`
+}
+
+//getblockchaininfo 命令返回的结构体的数据中的一个子集嵌套 softforks 的嵌套
+type softfork struct {
+	Type   string `json:"type"`
+	Active bool   `json:"active"`
+	Height int64  `json:"height"`
+}
+
+//getblcokheader 命令返回的结构体
+type BlockHeader struct {
+	Hash          string `json:"hash"`
+	Confirmations int64 `json:"confirmations"`
+	Height        int64 `json:"height"`
+	Version       int64 `json:"version"`
+	VersionHex    string `json:"version_hex"`
+	Merkleroot    string `json:"merkleroot"`
+	Time          int64 `json:"time"`
+	Mediantime    int64 `json:"mediantime"`
+	Nonce         int64 `json:"nonce"`
+	Bits          string `json:"bits"`
+	Difficulty    int64 `json:"difficulty"`
+	Chainwork     string `json:"chainwork"`
+	NTx           int64 `json:"n_tx"`
+	Nextblockhash string `json:"nextblockhash"`
 }
