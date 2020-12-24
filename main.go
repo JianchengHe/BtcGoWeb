@@ -8,6 +8,13 @@ import (
 )
 
 func main() {
+	fmt.Println("hello this world")
+
+	//静态资源映射文件
+	beego.SetStaticPath("/js","./static/js")
+	beego.SetStaticPath("/img","./static/img")
+	beego.SetStaticPath("/css","./static/css")
+
 	fmt.Println("hello  world !")
 	result, err := btc.GetMsgByCommand("getaddressinfo", "bc1qvcfdyrckqp905fray675cfreqtysqlg2kaqm66")
 	if err != nil {
